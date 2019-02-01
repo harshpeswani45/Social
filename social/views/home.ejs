@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FaceClone</title>
+
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+  <script>
+      function onLike(id,id1){
+        console.log(id)
+        var idlike = id+"like"
+        var decision
+        var like = document.getElementById(idlike).innerHTML
+        var change = document.getElementById(id)
+        //var sendId = document.getElementById(id1).innerHTML
+        if(change.innerHTML == "[Unlike]"){
+            decision = "unlike"
+            change.innerHTML = "[like]"
+            document.getElementById(idlike).innerHTML = like*1-1
+        }
+        else{
+          decision = "like"
+          change.innerHTML = "[Unlike]"
+          document.getElementById(idlike).innerHTML = like*1+1
+        }
+          
+        
+        let xhttp = new XMLHttpRequest();
+        let url = "/users/home/like/"+id+"/"+id1+"/"+decision
+        console.log(url);
+        xhttp.open('PUT', url, true);
+        xhttp.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 ){
+            if(this.status==200){
+              
+            }
+              
+            else
+              alert(`status : ${this.status} error: ${this.responseText}`);
+            
+          }
+        };
+        xhttp.send();
+
+      }
+      function add(id){
+        var change = document.getElementById(id)
+              change.innerHTML='[friend request sent]'
+              let xhttp = new XMLHttpRequest();
+        let url = "/users/home/"+id;
+        console.log(url);
+        xhttp.open('PUT', url, true);
+        xhttp.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 ){
+            if(this.status==200){
+              
+            }
+              
+            else
+              alert(`status : ${this.status} error: ${this.responseText}`);
+            
+          }
+        };
+        xhttp.send();
+      }
+      function addFriend(id){
+        var change = document.getElementById(id)
+        change.innerHTML='[Friend Request Accepted]'
+        let xhttp = new XMLHttpRequest();
+        let url = "/users/home/addFriend/"+id;
+        
+        xhttp.open('PUT', url, true);
+        xhttp.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 ){
+            if(this.status==200){
+              
+            }
+              
+            else
+              alert(`status : ${this.status} error: ${this.responseText}`);
+            
+          }
+        };
+        xhttp.send();
+      }
+      
+  </script>
+  <!-- nav -->
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="index.html">FaceClone</a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/users">Home</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- ./nav -->
+
+  <!-- main -->
+  <main class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <!-- profile brief -->
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <img src = '/<%=img%>' alt = 'no Img'>
+            <h4><%=username%></h4>
+            
+          </div>
+        </div>
+        <!-- ./profile brief -->
+
+        <!-- friend requests -->
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h4>friend requests</h4>
+            <ul>
+                <%for(var i=0 ;i< friendReq.length;i++){
+                  %>
+              <li>
+                
+                <a href="#"><%=friendReq[i].Name%></a> 
+                <a class="text-success" onclick="addFriend('<%=friendReq[i].Name%>')"    id = '<%=friendReq[i].Name%>'>[accept]</a> 
+                
+
+              </li>
+              <%}%>
+            </ul>
+          </div>
+        </div>
+        <!-- ./friend requests -->
+      </div>
+      <div class="col-md-6">
+        <!-- post form -->
+        <form method="POST" action="/users/home/post">
+          <div class="input-group">
+            <input class="form-control" type="text" name="desc" placeholder="Make a post...">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="submit" name="post">Post</button>
+            </span>
+          </div>
+        </form><hr>
+        <!-- ./post form -->
+
+        <!-- feed -->
+        <div>
+          
+          <!-- post -->
+          <%
+           
+          for(var i=0 ;i<Posts.length;i++){
+             
+              for(var j=0 ; j<Posts[i].length ; j++){
+                for(var k=0;k<Posts[i][j].Post.length;k++){
+            %>
+
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <p><%=Posts[i][j].Post[k].Desc%></p>
+            </div>
+            <div class="panel-footer">
+              <span>posted <%=Posts[i][j].Post[k].Date%> by <%=Posts[i][j].Name%></span> 
+              <%var m
+              for( m=0;m<Posts[i][j].Post[k].like.length;m++){
+
+                if(Posts[i][j].Post[k].like[m].Name == username){
+                    %>
+                    <span class="pull-right"><a class="text-danger" onclick="onLike('<%=Posts[i][j].Post[k]._id%>','<%=Posts[i][j]._id%>')"  id="<%=Posts[i][j].Post[k]._id%>">[Unlike]</a><a id="<%=Posts[i][j].Post[k]._id%>like"> <%=Posts[i][j].Post[k].like.length%></a></span>
+                  <%break
+                }
+              }
+              if(m==Posts[i][j].Post[k].like.length){%>
+                    <span class="pull-right"><a class="text-danger" onclick="onLike('<%=Posts[i][j].Post[k]._id%>','<%=Posts[i][j]._id%>')"  id="<%=Posts[i][j].Post[k]._id%>">[like]</a><a id="<%=Posts[i][j].Post[k]._id%>like"> <%=Posts[i][j].Post[k].like.length%></a></span>
+              <%}%>
+                    <span class="pull-right"><a class="text-danger" href="#">[comment]</a></span>
+              <span class="pull-right"><a class="text-danger" href="#">[delete]</a></span>
+            </div>
+          </div>
+          <%}}
+        }%>
+          <!-- ./post -->
+        </div>
+        <!-- ./feed -->
+      </div>
+      <div class="col-md-3">
+      <!-- add friend -->
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h4>add friend</h4>
+            <ul>
+               <%
+               
+               for(var i=0;i<users.length;i++){
+                 
+                  %>
+                  <li>
+
+                <a href="#" ></a>><%=users[i].Name%></a> 
+                <a onclick="add('<%=users[i].Name%>')" id= <%= users[i].Name %>>[add]</a>
+              </li>
+
+                <%}%>
+                          </ul>
+          </div>
+        </div>
+        <!-- ./add friend -->
+
+        <!-- friends -->
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h4>friends</h4>
+            <ul>
+              <%for(var i=0;i<friend.length;i++){
+                %>
+              <li>
+                <a href="#"><%=friend[i].Name%></a>
+                <%}%> 
+                
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- ./friends -->
+      </div>
+    </div>
+  </main>
+  <!-- ./main -->
+
+  <!-- footer -->
+  <footer class="container text-center">
+    <ul class="nav nav-pills pull-right">
+      <li>FaceClone - Made by FireHeart</li>
+    </ul>
+  </footer>
+  <!-- ./footer -->
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/script.js"></script>
+</body>
+</html>
